@@ -6,6 +6,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer;
 import net.kyori.adventure.util.HSVLike;
 
@@ -32,11 +35,11 @@ public class Main {
                 (TextColor)NamedTextColor.RED,
                 NamedTextColor.AQUA
         );
-        System.out.println(grad1);
+//        System.out.println(grad1);
         /**
          * This will be a static final field somewhere (the text color lerp should be pulled out)?
          */
-        System.out.println(StreamSupport.stream(grad1.generator(10, (loc, start, end) -> TextColor.lerp((float)loc, start, end)).spliterator(), false).toList());
+//        System.out.println(StreamSupport.stream(grad1.generator(10, (loc, start, end) -> TextColor.lerp((float)loc, start, end)).spliterator(), false).toList());
         var compBuilder1 = Component.text();
         StreamSupport.stream(grad1.generator(10, (loc, start, end) -> TextColor.lerp((float)loc, start, end)).spliterator(), false)
                 .forEachOrdered(col -> compBuilder1.append(Component.text("A", col)));
@@ -46,7 +49,7 @@ public class Main {
                 TextColor.fromCSSHexString("#06302a").asHSV(),
                 TextColor.fromCSSHexString("#ed582a").asHSV()
         );
-        System.out.println(grad2);
+//        System.out.println(grad2);
         /**
          * This will be a static final field somewhere?
          * Gradient.HSV_INTERPOLATOR ?
@@ -61,12 +64,20 @@ public class Main {
                     (float)clampDouble(lerpDouble(start.s(), end.s(), loc), 0d, 1d),
                     (float)clampDouble(lerpDouble(start.v(), end.v(), loc), 0d, 1d));
         };
-        System.out.println(
-                StreamSupport.stream(grad2.generator(10, hsvLerper).spliterator(), false).collect(Collectors.toList())
-        );
+//        System.out.println(
+//                StreamSupport.stream(grad2.generator(10, hsvLerper).spliterator(), false).collect(Collectors.toList())
+//        );
         var compBuilder2 = Component.text();
         StreamSupport.stream(grad2.generator(10, hsvLerper).spliterator(), false)
                 .forEachOrdered(col -> compBuilder2.append(Component.text("A", TextColor.color(col))));
         System.out.println(ANSIComponentSerializer.ansi().serialize(compBuilder2.build()));
+        MiniMessage mm = MiniMessage.builder()
+                .tags(TagResolver.builder()
+                        .resolvers(HSVGradientTag.RESOLVER)
+                        .resolver(StandardTags.color())
+                        .resolver(StandardTags.gradient())
+                        .resolvers(StandardTags.newline())
+                        .build()).build();
+        System.out.println(ANSIComponentSerializer.ansi().serialize(mm.deserialize("minimessage tag: <br>hsv <gr:#06302a:#ed582a>███████████████████████████████████████████████████</gr><br>rgb <gradient:#06302a:#ed582a>███████████████████████████████████████████████████</gradient>")));
     }
 }
